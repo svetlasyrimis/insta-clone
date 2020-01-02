@@ -9,97 +9,134 @@ import Register from './components/Register'
 import {
   loginUser,
   registerUser,
-  verifyUser
+  verifyUser,
+  postPicture,
+  getPosts,
+  destroyPost
 } from './services/api-helper'
 
 import './App.css';
 import Header from './components/Header';
+import Dashboard from './components/Dashboard';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      teachers: [],
-      teacherForm: {
-        name: "",
-        photo: ""
-      },
       currentUser: null,
       authFormData: {
         username: "",
         email: "",
         password: ""
-      }
+      },
+      postData: {
+        name: ""
+      },
+      picture: null,
+      posts:[]
     };
   }
 
   async componentDidMount() {
-    // this.getTeachers();
+    // this.getposts();
     const currentUser = await verifyUser();
     if (currentUser) {
       this.setState({ currentUser })
+      // const posts = await getPosts(this.state.currentUser.id)
+      // this.setState({
+      //     posts
+      // })
+    } else {
+      this.props.history.push('/')
     }
   }
 
-  // getTeachers = async () => {
-  //   const teachers = await readAllTeachers();
-  //   this.setState({
-  //     teachers
-  //   })
-  // }
+  
 
-  // newTeacher = async (e) => {
+  // newpost = async (e) => {
   //   e.preventDefault();
-  //   const teacher = await createTeacher(this.state.teacherForm);
+  //   const post = await createpost(this.state.postForm);
   //   this.setState(prevState => ({
-  //     teachers: [...prevState.teachers, teacher],
-  //     teacherForm: {
+  //     posts: [...prevState.posts, post],
+  //     postForm: {
   //       name: "",
   //       photo: ""
   //     }
   //   }))
   // }
 
-  // editTeacher = async () => {
-  //   const { teacherForm } = this.state
-  //   await updateTeacher(teacherForm.id, teacherForm);
+  // editpost = async () => {
+  //   const { postForm } = this.state
+  //   await updatepost(postForm.id, postForm);
   //   this.setState(prevState => (
   //     {
-  //       teachers: prevState.teachers.map(teacher => {
-  //         return teacher.id === teacherForm.id ? teacherForm : teacher
+  //       posts: prevState.posts.map(post => {
+  //         return post.id === postForm.id ? postForm : post
   //       }),
   //     }
   //   ))
   // }
 
-  // deleteTeacher = async (id) => {
-  //   await destroyTeacher(id);
-  //   this.setState(prevState => ({
-  //     teachers: prevState.teachers.filter(teacher => teacher.id !== id)
-  //   }))
-  // }
-
-  handleFormChange = (e) => {
-    const { name, value } = e.target;
+  deletePost = async (id) => {
+    await destroyPost(this.state.currentUser.id,id);
     this.setState(prevState => ({
-      teacherForm: {
-        ...prevState.teacherForm,
-        [name]: value
-      }
+      posts: prevState.posts.filter(post => post.id !== id)
     }))
   }
 
+  handlePostChange = ev => {
+    const { name, value } = ev.target;
+ 
+    this.setState(prevState => ({
+      postData: {
+        ...prevState.postData,
+        [name]: value
+      }
+    }));
+  }
+  
+  handlePhotoSubmit = async () => {
+    const picture = await this.fileUpload(this.state.picture)
+    this.setState(prevState => ({
+      posts: [...prevState.posts, picture],
+      picture: null
+    }))
+  }
+
+
+  fileUpload = picture => {
+   
+    let id = parseInt(this.state.currentUser.id)
+    const formData = new FormData();
+    formData.append('name', this.state.postData.name)
+    formData.append('picture', picture)
+    // formData.append('user_id', id)
+    const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
+    }
+    return  postPicture(formData,config)
+  }
+  handlePhotoChange = (e) => {
+    let picture = e.target.files[0]
+    this.setState({
+      picture
+    })
+  }
+  
+
   // mountEditForm = async (id) => {
-  //   const teachers = await readAllTeachers();
-  //   const teacher = teachers.find(el => el.id === parseInt(id));
+  //   const posts = await readAllposts();
+  //   const post = posts.find(el => el.id === parseInt(id));
   //   this.setState({
-  //     teacherForm: teacher
+  //     postForm: post
   //   });
   // }
 
   resetForm = () => {
     this.setState({
-      teacherForm: {
+      postForm: {
         name: "",
         photo: ""
       }
@@ -115,6 +152,12 @@ class App extends Component {
   handleLogin = async () => {
     const currentUser = await loginUser(this.state.authFormData);
     this.setState({ currentUser });
+    // const posts = await getPosts(this.state.currentUser.id)
+    // this.setState({
+    //     posts
+    // })
+    this.props.history.push('/dashboard')
+    
   }
 
   handleRegister = async (e) => {
@@ -128,6 +171,7 @@ class App extends Component {
     this.setState({
       currentUser: null
     })
+    this.props.history.push("/")
   }
 
   authHandleChange = (e) => {
@@ -144,14 +188,30 @@ class App extends Component {
     return (
       <div className="App" >
         {this.state.currentUser &&
+          <>
           <Header
             handleLoginButton={this.handleLoginButton}
             handleLogout={this.handleLogout}
             currentUser={this.state.currentUser}
-          />}
+          />
+          <Route 
+             exact path="/dashboard" render={() => (
+              <Dashboard
+                currentUser={this.state.currentUser}
+                picture={this.state.picture}
+                name={this.state.postData.name}
+                handlePostChange={this.handlePostChange}
+                handlePhotoChange={this.handlePhotoChange}
+                handlePhotoSubmit={this.handlePhotoSubmit}
+                // posts={this.state.posts}
+                deletePost={this.deletePost}
+              />)}
+           
+          />
+          </> }
         {!this.state.currentUser &&
           <>
-          <Route exact path="/login" render={() => (
+          <Route exact path="/" render={() => (
             <Login
               handleLogin={this.handleLogin}
               handleChange={this.authHandleChange}
@@ -166,34 +226,34 @@ class App extends Component {
         {/* <Route
           exact path="/"
           render={() => (
-            <TeachersView
-              teachers={this.state.teachers}
-              teacherForm={this.state.teacherForm}
+            <postsView
+              posts={this.state.posts}
+              postForm={this.state.postForm}
               handleFormChange={this.handleFormChange}
-              newTeacher={this.newTeacher} />
+              newpost={this.newpost} />
           )}
         />
         <Route
-          path="/new/teacher"
+          path="/new/post"
           render={() => (
-            <CreateTeacher
+            <Createpost
               handleFormChange={this.handleFormChange}
-              teacherForm={this.state.teacherForm}
-              newTeacher={this.newTeacher} />
+              postForm={this.state.postForm}
+              newpost={this.newpost} />
           )} />
         <Route
-          path="/teachers/:id"
+          path="/posts/:id"
           render={(props) => {
             const { id } = props.match.params;
-            const teacher = this.state.teachers.find(el => el.id === parseInt(id));
-            return <TeacherPage
+            const post = this.state.posts.find(el => el.id === parseInt(id));
+            return <postPage
               id={id}
-              teacher={teacher}
+              post={post}
               handleFormChange={this.handleFormChange}
               mountEditForm={this.mountEditForm}
-              editTeacher={this.editTeacher}
-              teacherForm={this.state.teacherForm}
-              deleteTeacher={this.deleteTeacher} />
+              editpost={this.editpost}
+              postForm={this.state.postForm}
+              deletepost={this.deletepost} />
           }}
         /> */}
       </div>
