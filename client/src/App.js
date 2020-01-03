@@ -42,10 +42,10 @@ class App extends Component {
     const currentUser = await verifyUser();
     if (currentUser) {
       this.setState({ currentUser })
-      // const posts = await getPosts(this.state.currentUser.id)
-      // this.setState({
-      //     posts
-      // })
+      const posts = await getPosts()
+      this.setState({
+          posts
+      })
     } else {
       this.props.history.push('/')
     }
@@ -78,7 +78,7 @@ class App extends Component {
   // }
 
   deletePost = async (id) => {
-    await destroyPost(this.state.currentUser.id,id);
+    await destroyPost(id);
     this.setState(prevState => ({
       posts: prevState.posts.filter(post => post.id !== id)
     }))
@@ -152,10 +152,10 @@ class App extends Component {
   handleLogin = async () => {
     const currentUser = await loginUser(this.state.authFormData);
     this.setState({ currentUser });
-    // const posts = await getPosts(this.state.currentUser.id)
-    // this.setState({
-    //     posts
-    // })
+    const posts = await getPosts(this.state.currentUser.id)
+    this.setState({
+        posts
+    })
     this.props.history.push('/dashboard')
     
   }
@@ -203,7 +203,7 @@ class App extends Component {
                 handlePostChange={this.handlePostChange}
                 handlePhotoChange={this.handlePhotoChange}
                 handlePhotoSubmit={this.handlePhotoSubmit}
-                // posts={this.state.posts}
+                posts={this.state.posts}
                 deletePost={this.deletePost}
               />)}
            

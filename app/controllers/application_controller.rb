@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
   end
 
   def authorize_request
-    binding.pry
+    # binding.pry
     header = request.headers['Authorization']
     header = header.split(' ').last if header
     begin

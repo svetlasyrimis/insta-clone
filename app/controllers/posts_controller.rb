@@ -1,12 +1,11 @@
 class PostsController < ApplicationController
   before_action :set_post, only: %i[show update destroy]
   before_action :authorize_request, except: [:show]
-  # has_many_attached :picture, service: :s3
+ 
 
   # GET /posts
   def index
     @posts = Post.all
-
     render json: @posts
   end
 
@@ -18,13 +17,9 @@ class PostsController < ApplicationController
   # POST /posts
   def create
     # @user = User.find(params[:user_id].to_i)
-    binding.pry
     # @post.user_id = @current_user.id
-    @post = Post.new(post_params.merge(user_id: current_user.id))
-    
+    @post = Post.new(post_params.merge(user_id: @current_user.id))  
     if @post.save
-      
-      # @post.picture.attach(params[:images])
       render json: @post
     else
       render json: @post.errors, status: :unprocessable_entity

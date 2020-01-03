@@ -1,7 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
-  before_action :authorize_request, except: [:create, :index, :show, :update, :destroy, :add_picture]
-  # has_many_attached :picture, service: :s3
+  before_action :authorize_request, except: [:create]
 
   # GET /users
   def index

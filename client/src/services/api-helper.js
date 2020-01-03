@@ -41,9 +41,9 @@ export const postPicture = async (data) => {
 }
 
 
-export const getPosts = async (id) => {
+export const getPosts = async () => {
   
-  const resp = await api.get(`http://localhost:3000/users/${id}/posts`)
+  const resp = await api.get(`http://localhost:3000/posts`)
   return resp.data
 }
 
@@ -57,7 +57,7 @@ export const beforeActionToken = async () => {
   return config
 }
 
-export const destroyPost = async (userId, id) => {
+export const destroyPost = async (id) => {
 
   // const token = localStorage.getItem('authToken');
   // const config = {
@@ -66,6 +66,6 @@ export const destroyPost = async (userId, id) => {
   //   }
   // }
   // const config = await beforeActionToken()
-  const resp = await api.delete(`http://localhost:3000/users/${userId}/posts/${id}`)
+  const resp = await api.delete(`http://localhost:3000/posts/${id}`)
   return resp.data
 }

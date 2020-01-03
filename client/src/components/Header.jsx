@@ -1,19 +1,20 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import instagram from "../assets/instagram.png"
 
 export default function Header(props) {
   return (
     <header>
-      <h1><Link to='/' onClick={props.resetForm}>Home</Link></h1>
-      <div>
+      <Link to='/' className="nav-brand-logo" onClick={props.resetForm}><img src={instagram} alt=""/></Link>
+      <div className="user-profile-box">
         {props.currentUser
           ?
-          <>
+          <div className="user-profile">
             <p>{props.currentUser.username}</p>
-            <button onClick={props.handleLogout}>logout</button>
-          </>
+            <button onClick={props.handleLogout}>Logout</button>
+          </div>
           :
-          <button onClick={props.handleLoginButton}>Login/register</button>
+          <></>
         }
       </div>
     </header>

@@ -14,7 +14,7 @@ export default class Dashboard extends Component {
             <input type="submit" id="button" name="" value="Submit"/>
         </form>
         {this.props.posts && this.props.posts.map(post => (<div key={post.id}>
-          <img src={post.picture} alt="post-picture" />
+          <img id="post-pic" src={post.picture} alt="post-picture" />
           <p>{post.name}</p>
           <button onClick={() => this.props.deletePost(post.id) }>Delete it</button>
 
