@@ -32,7 +32,7 @@ class App extends Component {
       postData: {
         name: ""
       },
-      picture: null,
+      picture: '',
       posts:[]
     };
   }
@@ -44,10 +44,11 @@ class App extends Component {
       this.setState({ currentUser })
       const posts = await getPosts()
       this.setState({
-          posts
+          posts: posts.reverse()
       })
     } else {
       this.props.history.push('/')
+      
     }
   }
 
@@ -98,15 +99,13 @@ class App extends Component {
   handlePhotoSubmit = async () => {
     const picture = await this.fileUpload(this.state.picture)
     this.setState(prevState => ({
-      posts: [...prevState.posts, picture],
+      posts: [picture,...prevState.posts],
       picture: null
     }))
   }
 
 
   fileUpload = picture => {
-   
-    let id = parseInt(this.state.currentUser.id)
     const formData = new FormData();
     formData.append('name', this.state.postData.name)
     formData.append('picture', picture)
@@ -119,9 +118,9 @@ class App extends Component {
     return  postPicture(formData,config)
   }
   handlePhotoChange = (e) => {
-    let picture = e.target.files[0]
+    
     this.setState({
-      picture
+      picture: e.target.files[0]
     })
   }
   
